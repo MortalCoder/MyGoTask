@@ -47,3 +47,49 @@ func (s *Service) CreateWords(c echo.Context) error {
 
 	return c.String(http.StatusOK, "OK")
 }
+
+// обновляем слово по id
+// PUT localhost:8000/api/word/:id
+func (s *Service) UpdateWord(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		s.logger.Error(err)
+		return c.JSON(s.NewError(InvalidParams))
+	}
+
+	var req struct {
+		Title       string `json:"title"`
+		Translation string `json:"translation"`
+	}
+
+	if err := c.Bind(&req); err != nil {
+		s.logger.Error(err)
+		return c.JSON(s.NewError(InvalidParams))
+	}
+
+	repo := s.wordsRepo
+	if err := repo.UpdateWord(id, req.Title, req.Translation); err != nil {
+		s.logger.Error(err)
+		return c.JSON(s.NewError(InternalServerError))
+	}
+
+	return c.JSON(http.StatusOK, Response{Object: "Word updated successfully"})
+}
+
+// удаляем слово по id
+// DELETE localhost:8000/api/word/:id
+func (s *Service) DeleteWord(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		s.logger.Error(err)
+		return c.JSON(s.NewError(InvalidParams))
+	}
+
+	repo := s.wordsRepo
+	if err := repo.DeleteWord(id); err != nil {
+		s.logger.Error(err)
+		return c.JSON(s.NewError(InternalServerError))
+	}
+
+	return c.JSON(http.StatusOK, Response{Object: "Word deleted successfully"})
+}

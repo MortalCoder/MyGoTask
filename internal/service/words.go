@@ -56,19 +56,15 @@ func (s *Service) UpdateWord(c echo.Context) error {
 		s.logger.Error(err)
 		return c.JSON(s.NewError(InvalidParams))
 	}
+	var word Word
 
-	var req struct {
-		Title       string `json:"title"`
-		Translation string `json:"translation"`
-	}
-
-	if err := c.Bind(&req); err != nil {
+	if err := c.Bind(&word); err != nil {
 		s.logger.Error(err)
 		return c.JSON(s.NewError(InvalidParams))
 	}
 
 	repo := s.wordsRepo
-	if err := repo.UpdateWord(id, req.Title, req.Translation); err != nil {
+	if err := repo.UpdateWord(id, word.Title, word.Translation); err != nil {
 		s.logger.Error(err)
 		return c.JSON(s.NewError(InternalServerError))
 	}

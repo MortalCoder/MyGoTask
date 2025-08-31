@@ -89,3 +89,18 @@ func (s *Service) DeleteWord(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, Response{Object: "Word deleted successfully"})
 }
+
+// поиск по схожести
+func (s *Service) SearchWords(c echo.Context) error {
+	title := c.QueryParam("title")
+	if title == "" {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "title is required"})
+	}
+
+	words, err := s.wordsRepo.SearchWords(title)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, words)
+}

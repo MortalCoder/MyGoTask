@@ -29,6 +29,8 @@ func main() {
 	api.PUT("/word/:id", svc.UpdateWord)
 	api.DELETE("/word/:id", svc.DeleteWord)
 
+	api.GET("/search/ru", svc.SearchWords)
+
 	// пути для репортов
 	api.POST("/report", svc.CreateReport)
 	api.GET("/report/:id", svc.GetReportById)

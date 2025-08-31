@@ -48,3 +48,28 @@ func (r *Repo) DeleteWord(id int) error {
 	_, err := r.db.Exec(`DELETE FROM ru_en WHERE id = $1`, id)
 	return err
 }
+
+// поиск слов по схожести
+func (r *Repo) SearchWords(title string) ([]Word, error) {
+	rows, err := r.db.Query(`
+		SELECT id, title, translation
+		FROM ru_en
+		WHERE similarity(title, $1) > 0.1
+		ORDER BY similarity(title, $1) DESC
+		LIMIT 4
+		`, title)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var words []Word
+	for rows.Next() {
+		var w Word
+		if err := rows.Scan(&w.Id, &w.Title, &w.Translation); err != nil {
+			return nil, err
+		}
+		words = append(words, w)
+	}
+	return words, nil
+}
